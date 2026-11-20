@@ -1,0 +1,24 @@
+{
+  "name": "it-b-hourly-attendance",
+  "version": "1.0.0",
+  "description": "Lightweight Student Hourly Attendance Management System for IT B (8 Periods, Select All, Analytics & Reports)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "keywords": [
+    "attendance",
+    "hourly-attendance",
+    "college",
+    "it-b",
+    "nodejs",
+    "northflank"
+  ],
+  "author": "IT B Class",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.2"
+  }
+}

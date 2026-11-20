@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IT - B Hourly Attendance Portal</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Phosphor Icons -->
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="/css/style.css">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Plus Jakarta Sans', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+              900: '#312e81',
+            }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col font-sans selection:bg-indigo-500 selection:text-white">
+
+  <!-- Top Navigation Header -->
+  <header class="sticky top-0 z-30 bg-slate-900/90 backdrop-blur-md border-b border-slate-800 shadow-lg">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        
+        <!-- Logo & Title -->
+        <div class="flex items-center space-x-3">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center shadow-md shadow-indigo-500/20 text-white font-bold text-xl">
+            IT
+          </div>
+          <div>
+            <div class="flex items-center space-x-2">
+              <h1 class="text-lg font-bold tracking-tight text-white">IT - B Attendance</h1>
+              <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+                8 Periods System
+              </span>
+            </div>
+            <p class="text-xs text-slate-400 hidden sm:block">Department of Information Technology • Academic Session 2024-2028</p>
+          </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <nav class="flex items-center space-x-1 sm:space-x-2">
+          <button onclick="switchTab('hourly')" id="tab-btn-hourly" class="tab-btn active px-3 py-1.5 rounded-lg text-sm font-medium transition flex items-center space-x-1.5 bg-indigo-600 text-white shadow-sm shadow-indigo-500/30">
+            <i class="ph ph-clock font-bold"></i>
+            <span>Hourly Entry</span>
+          </button>
+          <button onclick="switchTab('matrix')" id="tab-btn-matrix" class="tab-btn px-3 py-1.5 rounded-lg text-sm font-medium transition flex items-center space-x-1.5 text-slate-400 hover:text-slate-200 hover:bg-slate-800">
+            <i class="ph ph-table font-bold"></i>
+            <span>Day Matrix</span>
+          </button>
+          <button onclick="switchTab('analytics')" id="tab-btn-analytics" class="tab-btn px-3 py-1.5 rounded-lg text-sm font-medium transition flex items-center space-x-1.5 text-slate-400 hover:text-slate-200 hover:bg-slate-800">
+            <i class="ph ph-chart-donut font-bold"></i>
+            <span>Analytics & Defaulters</span>
+          </button>
+          <button onclick="switchTab('students')" id="tab-btn-students" class="tab-btn px-3 py-1.5 rounded-lg text-sm font-medium transition flex items-center space-x-1.5 text-slate-400 hover:text-slate-200 hover:bg-slate-800">
+            <i class="ph ph-users font-bold"></i>
+            <span class="hidden md:inline">Manage Students</span>
+          </button>
+        </nav>
+
+        <!-- Right Quick Actions -->
+        <div class="hidden lg:flex items-center space-x-3 text-xs text-slate-400">
+          <div class="flex items-center space-x-1.5 bg-slate-800/80 px-3 py-1.5 rounded-lg border border-slate-700/60">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span id="header-clock" class="font-mono">Live Clock</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Container -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+    <!-- ========================================== -->
+    <!-- TAB 1: HOURLY ATTENDANCE (CORE FEATURE)   -->
+    <!-- ========================================== -->
+    <div id="tab-hourly" class="tab-content space-y-6">
+
+      <!-- Date & Period Control Bar -->
+      <div class="bg-slate-800/60 backdrop-blur border border-slate-700/80 rounded-2xl p-4 sm:p-5 shadow-xl">
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          
+          <!-- Date & Quick Date Buttons -->
+          <div class="flex flex-wrap items-center gap-2 sm:gap-3">
+            <label for="attendance-date" class="text-xs font-semibold text-slate-400 uppercase tracking-wider flex items-center gap-1">
+              <i class="ph ph-calendar text-base text-indigo-400"></i> Date:
+            </label>
+            <input type="date" id="attendance-date" class="bg-slate-900 border border-slate-700 text-white rounded-lg px-3 py-1.5 text-sm font-medium focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+            <div class="flex items-center gap-1">
+              <button onclick="setDateOffset(0)" class="px-2.5 py-1 text-xs font-medium rounded-md bg-slate-700 hover:bg-slate-600 text-slate-200 transition">Today</button>
+              <button onclick="setDateOffset(-1)" class="px-2.5 py-1 text-xs font-medium rounded-md bg-slate-700 hover:bg-slate-600 text-slate-200 transition">Yesterday</button>
+            </div>
+          </div>
+
+          <!-- Subject & Faculty Info -->
+          <div class="flex flex-1 max-w-xl items-center gap-2">
+            <div class="flex-1 relative">
+              <i class="ph ph-book-open absolute left-3 top-2.5 text-slate-500"></i>
+              <input type="text" id="period-subject" placeholder="Subject Name (e.g. Cloud Computing)" class="w-full pl-9 pr-3 py-1.5 text-sm bg-slate-900 border border-slate-700 rounded-lg text-slate-100 placeholder-slate-500 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+            </div>
+            <div class="w-40 relative hidden sm:block">
+              <i class="ph ph-user absolute left-3 top-2.5 text-slate-500"></i>
+              <input type="text" id="period-staff" placeholder="Staff Name" class="w-full pl-9 pr-3 py-1.5 text-sm bg-slate-900 border border-slate-700 rounded-lg text-slate-100 placeholder-slate-500 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+            </div>
+          </div>
+
+          <!-- Save and Status Feedback -->
+          <div class="flex items-center gap-2 justify-end">
+            <button onclick="saveCurrentPeriodAttendance()" id="save-btn" class="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold px-4 py-2 rounded-xl text-sm flex items-center space-x-2 shadow-lg shadow-emerald-600/25 transition active:scale-95">
+              <i class="ph ph-floppy-disk text-base"></i>
+              <span>Save Attendance</span>
+            </button>
+          </div>
+
+        </div>
+
+        <!-- 8 Period Selectors (Horizontal Scroll / Grid) -->
+        <div class="mt-5 pt-4 border-t border-slate-700/60">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+              <i class="ph ph-hourglass-high text-indigo-400"></i> Select Hourly Period (8 Hours Schedule)
+            </span>
+            <span id="period-saved-status" class="text-xs font-semibold text-emerald-400"></span>
+          </div>
+
+          <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2" id="periods-pill-container">
+            <!-- Dynamically populated periods 1 to 8 -->
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Action Toolbar (SELECT ALL BUTTONS, Search, Filter) -->
+      <div class="bg-slate-800/80 border border-slate-700/80 rounded-2xl p-4 shadow-lg flex flex-col md:flex-row md:items-center justify-between gap-4">
+        
+        <!-- Batch Action Buttons (SELECT ALL OPTIONS) -->
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="text-xs font-bold uppercase tracking-wider text-slate-400 mr-1 flex items-center gap-1">
+            <i class="ph ph-cursor-click text-indigo-400"></i> Bulk Select:
+          </span>
+          <button onclick="selectAllStatus('P')" class="px-3 py-1.5 rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/30 text-xs font-bold transition flex items-center gap-1.5 active:scale-95">
+            <i class="ph ph-check-circle font-bold"></i> Select All Present
+          </button>
+          <button onclick="selectAllStatus('A')" class="px-3 py-1.5 rounded-lg bg-rose-500/20 text-rose-400 border border-rose-500/30 hover:bg-rose-500/30 text-xs font-bold transition flex items-center gap-1.5 active:scale-95">
+            <i class="ph ph-x-circle font-bold"></i> Select All Absent
+          </button>
+          <button onclick="invertStatus()" class="px-3 py-1.5 rounded-md bg-slate-700 hover:bg-slate-600 text-slate-300 text-xs font-semibold transition flex items-center gap-1">
+            <i class="ph ph-arrows-clockwise font-bold"></i> Invert
+          </button>
+          <div class="h-4 w-px bg-slate-700 mx-1 hidden sm:block"></div>
+          <button onclick="applyBatchToChecked('OD')" class="px-2.5 py-1.5 rounded-md bg-sky-500/20 text-sky-400 hover:bg-sky-500/30 border border-sky-500/30 text-xs font-medium transition" title="Apply to checked students">
+            Mark Checked OD
+          </button>
+          <button onclick="applyBatchToChecked('L')" class="px-2.5 py-1.5 rounded-md bg-amber-500/20 text-amber-400 hover:bg-amber-500/30 border border-amber-500/30 text-xs font-medium transition" title="Apply to checked students">
+            Mark Checked Late
+          </button>
+        </div>
+
+        <!-- Filter & Search Box -->
+        <div class="flex items-center gap-2">
+          <div class="relative w-full sm:w-64">
+            <i class="ph ph-magnifying-glass absolute left-3 top-2.5 text-slate-500 text-sm"></i>
+            <input type="text" id="search-student" oninput="filterStudents()" placeholder="Search roll no or name..." class="w-full pl-8 pr-3 py-1.5 text-xs bg-slate-900 border border-slate-700 rounded-lg text-slate-200 placeholder-slate-500 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+          </div>
+          <select id="filter-gender" onchange="filterStudents()" class="bg-slate-900 border border-slate-700 text-slate-300 rounded-lg px-2.5 py-1.5 text-xs font-medium focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+            <option value="ALL">All Genders</option>
+            <option value="M">Boys Only</option>
+            <option value="F">Girls Only</option>
+          </select>
+        </div>
+
+      </div>
+
+      <!-- Quick Metrics Grid -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+        <div class="bg-slate-800/60 border border-slate-700/60 rounded-xl p-3.5 flex items-center justify-between">
+          <div>
+            <p class="text-xs font-semibold text-slate-400">Total Strength</p>
+            <p id="stat-total" class="text-2xl font-extrabold text-white">55</p>
+          </div>
+          <div class="w-10 h-10 rounded-lg bg-slate-700/60 flex items-center justify-center text-slate-300 text-xl">
+            <i class="ph ph-users-three"></i>
+          </div>
+        </div>
+
+        <div class="bg-emerald-950/30 border border-emerald-800/40 rounded-xl p-3.5 flex items-center justify-between">
+          <div>
+            <p class="text-xs font-semibold text-emerald-400">Present (Attended)</p>
+            <div class="flex items-baseline space-x-1.5">
+              <span id="stat-present" class="text-2xl font-extrabold text-emerald-400">0</span>
+              <span id="stat-present-pct" class="text-xs font-medium text-emerald-500/80">(0%)</span>
+            </div>
+          </div>
+          <div class="w-10 h-10 rounded-lg bg-emerald-500/20 flex items-center justify-center text-emerald-400 text-xl font-bold">
+            <i class="ph ph-check"></i>
+          </div>
+        </div>
+
+        <div class="bg-rose-950/30 border border-rose-800/40 rounded-xl p-3.5 flex items-center justify-between">
+          <div>
+            <p class="text-xs font-semibold text-rose-400">Absent (Leave/Absent)</p>
+            <div class="flex items-baseline space-x-1.5">
+              <span id="stat-absent" class="text-2xl font-extrabold text-rose-400">0</span>
+              <span id="stat-absent-pct" class="text-xs font-medium text-rose-500/80">(0%)</span>
+            </div>
+          </div>
+          <div class="w-10 h-10 rounded-lg bg-rose-500/20 flex items-center justify-center text-rose-400 text-xl font-bold">
+            <i class="ph ph-x"></i>
+          </div>
+        </div>
+
+        <div class="bg-sky-950/30 border border-sky-800/40 rounded-xl p-3.5 flex items-center justify-between">
+          <div>
+            <p class="text-xs font-semibold text-sky-400">On Duty / Late</p>
+            <div class="flex items-baseline space-x-1.5">
+              <span id="stat-od" class="text-2xl font-extrabold text-sky-400">0</span>
+              <span id="stat-late" class="text-xs font-medium text-amber-400">+0 Late</span>
+            </div>
+          </div>
+          <div class="w-10 h-10 rounded-lg bg-sky-500/20 flex items-center justify-center text-sky-400 text-xl font-bold">
+            <i class="ph ph-identification-badge"></i>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Attendance Area: Two Column Layout (Student List + WhatsApp/Absentees Panel) -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+        <!-- Left 2 Cols: Student Attendance Roster Table -->
+        <div class="lg:col-span-2 space-y-4">
+          <div class="bg-slate-800/70 border border-slate-700/80 rounded-2xl overflow-hidden shadow-xl">
+            
+            <div class="px-4 py-3 bg-slate-800 border-b border-slate-700 flex items-center justify-between">
+              <div class="flex items-center space-x-3">
+                <input type="checkbox" id="check-all-students" onchange="toggleSelectAllRows(this.checked)" class="w-4 h-4 rounded border-slate-600 bg-slate-900 text-indigo-600 focus:ring-indigo-500">
+                <span class="text-xs font-bold text-slate-300 uppercase tracking-wider">Student Roster (<span id="visible-student-count">55</span>)</span>
+              </div>
+              <span class="text-xs text-slate-400 hidden sm:inline">Tip: Click status buttons or tap student row to toggle</span>
+            </div>
+
+            <!-- Scrollable Student List Container -->
+            <div class="max-h-[640px] overflow-y-auto divide-y divide-slate-800/80" id="student-list-container">
+              <!-- Dynamically populated student rows -->
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Right 1 Col: Live Absentees & WhatsApp Broadcaster -->
+        <div class="space-y-4">
+          
+          <!-- WhatsApp / Notice Generator Card -->
+          <div class="bg-gradient-to-br from-slate-800/90 to-slate-800/50 border border-slate-700 rounded-2xl p-5 shadow-xl relative overflow-hidden">
+            <div class="flex items-center justify-between mb-3">
+              <div class="flex items-center space-x-2">
+                <div class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-lg">
+                  <i class="ph ph-whatsapp-logo font-bold"></i>
+                </div>
+                <h3 class="font-bold text-sm text-white">WhatsApp Announcement</h3>
+              </div>
+              <button onclick="copyWhatsAppMessage()" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold flex items-center space-x-1.5 transition shadow shadow-emerald-600/30 active:scale-95">
+                <i class="ph ph-copy font-bold"></i>
+                <span id="copy-btn-text">Copy Text</span>
+              </button>
+            </div>
+
+            <p class="text-xs text-slate-400 mb-3">Pre-formatted message ready to post to class/faculty WhatsApp groups:</p>
+
+            <div class="bg-slate-950/80 rounded-xl p-3 border border-slate-800 font-mono text-xs text-slate-300 leading-relaxed max-h-56 overflow-y-auto whitespace-pre-wrap select-all" id="whatsapp-preview">
+              Generating announcement...
+            </div>
+          </div>
+
+          <!-- Absentee List Summary Card -->
+          <div class="bg-slate-800/70 border border-slate-700 rounded-2xl p-5 shadow-xl">
+            <div class="flex items-center justify-between mb-3">
+              <div class="flex items-center space-x-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
+                <h3 class="font-bold text-sm text-white">Absentees in This Period (<span id="absentee-badge-count">0</span>)</h3>
+              </div>
+            </div>
+
+            <div id="absentee-list-items" class="space-y-2 max-h-60 overflow-y-auto pr-1">
+              <p class="text-xs text-slate-500 italic py-2 text-center">No absentees marked for this period.</p>
+            </div>
+          </div>
+
+          <!-- Quick Notes for this period -->
+          <div class="bg-slate-800/70 border border-slate-700 rounded-2xl p-5 shadow-xl">
+            <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">
+              <i class="ph ph-note-pencil text-indigo-400"></i> Period Remarks / Notes
+            </label>
+            <textarea id="period-notes" rows="2" placeholder="e.g. Lab experiment 4 conducted, 2 students in placement drive..." class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-xs text-slate-200 placeholder-slate-500 focus:ring-2 focus:ring-indigo-500 focus:outline-none"></textarea>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- ========================================== -->
+    <!-- TAB 2: FULL DAY MATRIX VIEW (PERIODS 1-8) -->
+    <!-- ========================================== -->
+    <div id="tab-matrix" class="tab-content hidden space-y-5">
+      <div class="bg-slate-800/70 border border-slate-700 rounded-2xl p-5 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h2 class="text-lg font-bold text-white flex items-center gap-2">
+            <i class="ph ph-grid-four text-indigo-400"></i> Full Day Attendance Matrix (8 Periods)
+          </h2>
+          <p class="text-xs text-slate-400">View complete period-by-period breakdown for every student for selected date.</p>
+        </div>
+        <div class="flex items-center gap-3">
+          <input type="date" id="matrix-date" onchange="loadDayMatrix()" class="bg-slate-900 border border-slate-700 text-white rounded-lg px-3 py-1.5 text-sm font-medium focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+          <button onclick="exportCSVCurrentDate()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold px-3 py-1.5 rounded-lg text-xs flex items-center gap-1.5 transition shadow">
+            <i class="ph ph-file-csv font-bold"></i> Export CSV
+          </button>
+        </div>
+      </div>
+
+      <!-- Matrix Table -->
+      <div class="bg-slate-800/80 border border-slate-700 rounded-2xl overflow-hidden shadow-xl">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-900/90 text-slate-400 border-b border-slate-700 text-[11px] uppercase tracking-wider sticky top-0">
+              <tr>
+                <th class="px-4 py-3 font-semibold">Roll No</th>
+                <th class="px-4 py-3 font-semibold min-w-[150px]">Student Name</th>
+                <th class="px-2 py-3 text-center font-semibold">P1<br><span class="text-[9px] text-slate-500 normal-case font-normal">8:45</span></th>
+                <th class="px-2 py-3 text-center font-semibold">P2<br><span class="text-[9px] text-slate-500 normal-case font-normal">9:35</span></th>
+                <th class="px-2 py-3 text-center font-semibold">P3<br><span class="text-[9px] text-slate-500 normal-case font-normal">10:40</span></th>
+                <th class="px-2 py-3 text-center font-semibold">P4<br><span class="text-[9px] text-slate-500 normal-case font-normal">11:30</span></th>
+                <th class="px-2 py-3 text-center font-semibold">P5<br><span class="text-[9px] text-slate-500 normal-case font-normal">1:10</span></th>
+                <th class="px-2 py-3 text-center font-semibold">P6<br><span class="text-[9px] text-slate-500 normal-case font-normal">2:00</span></th>
+                <th class="px-2 py-3 text-center font-semibold">P7<br><span class="text-[9px] text-slate-500 normal-case font-normal">3:00</span></th>
+                <th class="px-2 py-3 text-center font-semibold">P8<br><span class="text-[9px] text-slate-500 normal-case font-normal">3:45</span></th>
+                <th class="px-3 py-3 text-center font-semibold text-indigo-300">Day Total</th>
+                <th class="px-3 py-3 text-center font-semibold">Day %</th>
+              </tr>
+            </thead>
+            <tbody id="matrix-tbody" class="divide-y divide-slate-700/60 font-medium">
+              <tr><td colspan="12" class="text-center py-8 text-slate-500">Loading matrix...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- TAB 3: ANALYTICS & DEFAULTERS (<75%)      -->
+    <!-- ========================================== -->
+    <div id="tab-analytics" class="tab-content hidden space-y-6">
+      
+      <!-- Top Metrics -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-slate-800/70 border border-slate-700 rounded-2xl p-5 shadow-lg">
+          <p class="text-xs font-semibold text-slate-400">Total Periods Conducted</p>
+          <p id="ana-total-periods" class="text-3xl font-extrabold text-white mt-1">0</p>
+          <p class="text-[11px] text-slate-500 mt-1">Recorded across all days</p>
+        </div>
+
+        <div class="bg-slate-800/70 border border-slate-700 rounded-2xl p-5 shadow-lg">
+          <p class="text-xs font-semibold text-slate-400">Average Class Attendance</p>
+          <p id="ana-class-avg" class="text-3xl font-extrabold text-emerald-400 mt-1">0%</p>
+          <p class="text-[11px] text-slate-500 mt-1">Department target is ≥ 75%</p>
+        </div>
+
+        <div class="bg-slate-800/70 border border-slate-700 rounded-2xl p-5 shadow-lg">
+          <p class="text-xs font-semibold text-rose-400">Defaulters (&lt; 75%)</p>
+          <p id="ana-defaulters-count" class="text-3xl font-extrabold text-rose-400 mt-1">0</p>
+          <p class="text-[11px] text-rose-400/70 mt-1">Students needing urgent counseling</p>
+        </div>
+
+        <div class="bg-slate-800/70 border border-slate-700 rounded-2xl p-5 shadow-lg">
+          <p class="text-xs font-semibold text-indigo-400">Enrolled IT - B Students</p>
+          <p id="ana-students-count" class="text-3xl font-extrabold text-indigo-400 mt-1">55</p>
+          <p class="text-[11px] text-slate-500 mt-1">Active registered students</p>
+        </div>
+      </div>
+
+      <!-- Defaulters Alert Box -->
+      <div id="defaulters-alert-section" class="bg-rose-950/30 border border-rose-800/50 rounded-2xl p-5 shadow-xl hidden">
+        <div class="flex items-center space-x-3 mb-3">
+          <div class="w-8 h-8 rounded-lg bg-rose-500/20 text-rose-400 flex items-center justify-center font-bold text-lg">
+            <i class="ph ph-warning-octagon"></i>
+          </div>
+          <div>
+            <h3 class="text-base font-bold text-rose-300">Attendance Defaulter Warning (<span id="defaulter-list-count">0</span> Students)</h3>
+            <p class="text-xs text-rose-400/80">These students currently have less than 75% overall period attendance.</p>
+          </div>
+        </div>
+        <div id="defaulters-cards-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mt-4">
+          <!-- Dynamically populated defaulter mini cards -->
+        </div>
+      </div>
+
+      <!-- Cumulative Student Performance Table -->
+      <div class="bg-slate-800/80 border border-slate-700 rounded-2xl overflow-hidden shadow-xl">
+        <div class="px-5 py-4 border-b border-slate-700 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <h3 class="font-bold text-white text-sm">Overall Student Attendance Summary</h3>
+            <p class="text-xs text-slate-400">Total periods attended vs conducted per student</p>
+          </div>
+          <div class="relative w-64">
+            <i class="ph ph-magnifying-glass absolute left-3 top-2.5 text-slate-500 text-sm"></i>
+            <input type="text" id="search-analytics" oninput="filterAnalyticsTable()" placeholder="Search roll no or name..." class="w-full pl-8 pr-3 py-1.5 text-xs bg-slate-900 border border-slate-700 rounded-lg text-slate-200 placeholder-slate-500 focus:outline-none">
+          </div>
+        </div>
+
+        <div class="overflow-x-auto max-h-96">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-900/90 text-slate-400 uppercase text-[10px] tracking-wider sticky top-0">
+              <tr>
+                <th class="px-4 py-3">Roll No</th>
+                <th class="px-4 py-3">Student Name</th>
+                <th class="px-3 py-3 text-center">Conducted</th>
+                <th class="px-3 py-3 text-center">Present</th>
+                <th class="px-3 py-3 text-center">Absent</th>
+                <th class="px-3 py-3 text-center">OD / Late</th>
+                <th class="px-4 py-3 text-center">Attendance %</th>
+                <th class="px-4 py-3 text-center">Status</th>
+              </tr>
+            </thead>
+            <tbody id="analytics-tbody" class="divide-y divide-slate-700/60 font-medium">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ========================================== -->
+    <!-- TAB 4: MANAGE STUDENTS (CRUD + IMPORT)    -->
+    <!-- ========================================== -->
+    <div id="tab-students" class="tab-content hidden space-y-6">
+      
+      <div class="bg-slate-800/70 border border-slate-700 rounded-2xl p-5 shadow-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h2 class="text-lg font-bold text-white flex items-center gap-2">
+            <i class="ph ph-student text-indigo-400"></i> Manage IT - B Student Roster
+          </h2>
+          <p class="text-xs text-slate-400">Add, edit, delete students or import student lists.</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="openAddStudentModal()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold px-3.5 py-1.5 rounded-lg text-xs flex items-center gap-1.5 transition shadow">
+            <i class="ph ph-plus-circle font-bold"></i> Add Student
+          </button>
+          <button onclick="openImportModal()" class="bg-slate-700 hover:bg-slate-600 text-slate-200 font-semibold px-3 py-1.5 rounded-lg text-xs flex items-center gap-1.5 transition">
+            <i class="ph ph-file-arrow-up font-bold"></i> Bulk Import
+          </button>
+          <button onclick="resetDefaultStudents()" class="bg-rose-900/40 hover:bg-rose-900/60 text-rose-300 border border-rose-800/50 font-semibold px-3 py-1.5 rounded-lg text-xs flex items-center gap-1.5 transition">
+            <i class="ph ph-arrow-counter-clockwise font-bold"></i> Reset
+          </button>
+        </div>
+      </div>
+
+      <!-- Students Table -->
+      <div class="bg-slate-800/80 border border-slate-700 rounded-2xl overflow-hidden shadow-xl">
+        <div class="overflow-x-auto max-h-[600px]">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-900/90 text-slate-400 uppercase text-[10px] tracking-wider sticky top-0">
+              <tr>
+                <th class="px-4 py-3">#</th>
+                <th class="px-4 py-3">Roll No</th>
+                <th class="px-4 py-3">Full Name</th>
+                <th class="px-4 py-3">Register Number</th>
+                <th class="px-4 py-3">Gender</th>
+                <th class="px-4 py-3 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="manage-students-tbody" class="divide-y divide-slate-700/60 font-medium">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- Modal: Add / Edit Student -->
+  <div id="student-modal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-slate-800 border border-slate-700 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-700">
+        <h3 id="student-modal-title" class="text-base font-bold text-white">Add New Student</h3>
+        <button onclick="closeStudentModal()" class="text-slate-400 hover:text-white text-lg">
+          <i class="ph ph-x font-bold"></i>
+        </button>
+      </div>
+
+      <input type="hidden" id="modal-student-id">
+
+      <div class="space-y-3 text-xs">
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">Roll Number (e.g. 22ITB01)</label>
+          <input type="text" id="modal-roll" placeholder="22ITB01" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white uppercase focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">Student Full Name</label>
+          <input type="text" id="modal-name" placeholder="Aakash M" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">Anna University Register No (Optional)</label>
+          <input type="text" id="modal-reg" placeholder="730422205001" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">Gender</label>
+          <select id="modal-gender" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+            <option value="M">Male</option>
+            <option value="F">Female</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end space-x-2 pt-3 border-t border-slate-700">
+        <button onclick="closeStudentModal()" class="px-4 py-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-300 text-xs font-semibold">Cancel</button>
+        <button onclick="saveStudentFromModal()" class="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow">Save Student</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Bulk Import -->
+  <div id="import-modal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-slate-800 border border-slate-700 rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-700">
+        <h3 class="text-base font-bold text-white">Bulk Import Students</h3>
+        <button onclick="closeImportModal()" class="text-slate-400 hover:text-white text-lg">
+          <i class="ph ph-x font-bold"></i>
+        </button>
+      </div>
+
+      <p class="text-xs text-slate-400">Paste student records in CSV format: <code class="text-indigo-400">RollNo, Name, RegNo, Gender(M/F)</code> (one per line):</p>
+      
+      <textarea id="import-csv-textarea" rows="8" placeholder="22ITB01, Aakash M, 730422205001, M&#10;22ITB02, Abinaya S, 730422205002, F" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-xs font-mono text-slate-200 focus:ring-2 focus:ring-indigo-500 focus:outline-none"></textarea>
+
+      <div class="flex items-center justify-end space-x-2 pt-3 border-t border-slate-700">
+        <button onclick="closeImportModal()" class="px-4 py-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-300 text-xs font-semibold">Cancel</button>
+        <button onclick="processBulkImport()" class="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow">Import Roster</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col space-y-2 pointer-events-none"></div>
+
+  <!-- Footer -->
+  <footer class="border-t border-slate-800/80 bg-slate-900/50 py-4 mt-auto">
+    <div class="max-w-7xl mx-auto px-4 text-center text-xs text-slate-500">
+      IT - B Hourly Attendance Management System • Optimized for Northflank Deployment • 8 Periods Tracker
+    </div>
+  </footer>
+
+  <!-- App Script -->
+  <script src="/js/app.js"></script>
+</body>
+</html>

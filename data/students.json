@@ -1,0 +1,387 @@
+[
+  {
+    "id": "1",
+    "rollNo": "22ITB01",
+    "name": "Aakash M",
+    "regNo": "730422205001",
+    "gender": "M"
+  },
+  {
+    "id": "2",
+    "rollNo": "22ITB02",
+    "name": "Abinaya S",
+    "regNo": "730422205002",
+    "gender": "F"
+  },
+  {
+    "id": "3",
+    "rollNo": "22ITB03",
+    "name": "Aditya Raj",
+    "regNo": "730422205003",
+    "gender": "M"
+  },
+  {
+    "id": "4",
+    "rollNo": "22ITB04",
+    "name": "Ajith Kumar K",
+    "regNo": "730422205004",
+    "gender": "M"
+  },
+  {
+    "id": "5",
+    "rollNo": "22ITB05",
+    "name": "Ananya Ramesh",
+    "regNo": "730422205005",
+    "gender": "F"
+  },
+  {
+    "id": "6",
+    "rollNo": "22ITB06",
+    "name": "Aravind Swamy",
+    "regNo": "730422205006",
+    "gender": "M"
+  },
+  {
+    "id": "7",
+    "rollNo": "22ITB07",
+    "name": "Archana V",
+    "regNo": "730422205007",
+    "gender": "F"
+  },
+  {
+    "id": "8",
+    "rollNo": "22ITB08",
+    "name": "Arun Prakash G",
+    "regNo": "730422205008",
+    "gender": "M"
+  },
+  {
+    "id": "9",
+    "rollNo": "22ITB09",
+    "name": "Balamurugan R",
+    "regNo": "730422205009",
+    "gender": "M"
+  },
+  {
+    "id": "10",
+    "rollNo": "22ITB10",
+    "name": "Bhavani Devi K",
+    "regNo": "730422205010",
+    "gender": "F"
+  },
+  {
+    "id": "11",
+    "rollNo": "22ITB11",
+    "name": "Chandru S",
+    "regNo": "730422205011",
+    "gender": "M"
+  },
+  {
+    "id": "12",
+    "rollNo": "22ITB12",
+    "name": "Deepak Kumar S",
+    "regNo": "730422205012",
+    "gender": "M"
+  },
+  {
+    "id": "13",
+    "rollNo": "22ITB13",
+    "name": "Dharani P",
+    "regNo": "730422205013",
+    "gender": "F"
+  },
+  {
+    "id": "14",
+    "rollNo": "22ITB14",
+    "name": "Dinesh Karthik M",
+    "regNo": "730422205014",
+    "gender": "M"
+  },
+  {
+    "id": "15",
+    "rollNo": "22ITB15",
+    "name": "Divya Bharathi R",
+    "regNo": "730422205015",
+    "gender": "F"
+  },
+  {
+    "id": "16",
+    "rollNo": "22ITB16",
+    "name": "Ganesh Moorthy B",
+    "regNo": "730422205016",
+    "gender": "M"
+  },
+  {
+    "id": "17",
+    "rollNo": "22ITB17",
+    "name": "Gokulnath T",
+    "regNo": "730422205017",
+    "gender": "M"
+  },
+  {
+    "id": "18",
+    "rollNo": "22ITB18",
+    "name": "Harini Sree V",
+    "regNo": "730422205018",
+    "gender": "F"
+  },
+  {
+    "id": "19",
+    "rollNo": "22ITB19",
+    "name": "Hariharan K",
+    "regNo": "730422205019",
+    "gender": "M"
+  },
+  {
+    "id": "20",
+    "rollNo": "22ITB20",
+    "name": "Janani M",
+    "regNo": "730422205020",
+    "gender": "F"
+  },
+  {
+    "id": "21",
+    "rollNo": "22ITB21",
+    "name": "Jeeva Ananth V",
+    "regNo": "730422205021",
+    "gender": "M"
+  },
+  {
+    "id": "22",
+    "rollNo": "22ITB22",
+    "name": "Karthikeyan P",
+    "regNo": "730422205022",
+    "gender": "M"
+  },
+  {
+    "id": "23",
+    "rollNo": "22ITB23",
+    "name": "Kavitha N",
+    "regNo": "730422205023",
+    "gender": "F"
+  },
+  {
+    "id": "24",
+    "rollNo": "22ITB24",
+    "name": "Kishore Kumar R",
+    "regNo": "730422205024",
+    "gender": "M"
+  },
+  {
+    "id": "25",
+    "rollNo": "22ITB25",
+    "name": "Madhan Raj S",
+    "regNo": "730422205025",
+    "gender": "M"
+  },
+  {
+    "id": "26",
+    "rollNo": "22ITB26",
+    "name": "Manojkumar T",
+    "regNo": "730422205026",
+    "gender": "M"
+  },
+  {
+    "id": "27",
+    "rollNo": "22ITB27",
+    "name": "Meena Priya S",
+    "regNo": "730422205027",
+    "gender": "F"
+  },
+  {
+    "id": "28",
+    "rollNo": "22ITB28",
+    "name": "Monish Kannan K",
+    "regNo": "730422205028",
+    "gender": "M"
+  },
+  {
+    "id": "29",
+    "rollNo": "22ITB29",
+    "name": "Nandhini G",
+    "regNo": "730422205029",
+    "gender": "F"
+  },
+  {
+    "id": "30",
+    "rollNo": "22ITB30",
+    "name": "Naveen Prasath C",
+    "regNo": "730422205030",
+    "gender": "M"
+  },
+  {
+    "id": "31",
+    "rollNo": "22ITB31",
+    "name": "Nithya Sri D",
+    "regNo": "730422205031",
+    "gender": "F"
+  },
+  {
+    "id": "32",
+    "rollNo": "22ITB32",
+    "name": "Pavithra K",
+    "regNo": "730422205032",
+    "gender": "F"
+  },
+  {
+    "id": "33",
+    "rollNo": "22ITB33",
+    "name": "Pradeep Chandran",
+    "regNo": "730422205033",
+    "gender": "M"
+  },
+  {
+    "id": "34",
+    "rollNo": "22ITB34",
+    "name": "Praveen Raj M",
+    "regNo": "730422205034",
+    "gender": "M"
+  },
+  {
+    "id": "35",
+    "rollNo": "22ITB35",
+    "name": "Preethi S",
+    "regNo": "730422205035",
+    "gender": "F"
+  },
+  {
+    "id": "36",
+    "rollNo": "22ITB36",
+    "name": "Raghavan S",
+    "regNo": "730422205036",
+    "gender": "M"
+  },
+  {
+    "id": "37",
+    "rollNo": "22ITB37",
+    "name": "Rahul V",
+    "regNo": "730422205037",
+    "gender": "M"
+  },
+  {
+    "id": "38",
+    "rollNo": "22ITB38",
+    "name": "Ramya Krishnan",
+    "regNo": "730422205038",
+    "gender": "F"
+  },
+  {
+    "id": "39",
+    "rollNo": "22ITB39",
+    "name": "Rithvik Sharma",
+    "regNo": "730422205039",
+    "gender": "M"
+  },
+  {
+    "id": "40",
+    "rollNo": "22ITB40",
+    "name": "Rohit Balaji",
+    "regNo": "730422205040",
+    "gender": "M"
+  },
+  {
+    "id": "41",
+    "rollNo": "22ITB41",
+    "name": "Sandhiya M",
+    "regNo": "730422205041",
+    "gender": "F"
+  },
+  {
+    "id": "42",
+    "rollNo": "22ITB42",
+    "name": "Sanjay Kumar P",
+    "regNo": "730422205042",
+    "gender": "M"
+  },
+  {
+    "id": "43",
+    "rollNo": "22ITB43",
+    "name": "Santhosh S",
+    "regNo": "730422205043",
+    "gender": "M"
+  },
+  {
+    "id": "44",
+    "rollNo": "22ITB44",
+    "name": "Saravanan R",
+    "regNo": "730422205044",
+    "gender": "M"
+  },
+  {
+    "id": "45",
+    "rollNo": "22ITB45",
+    "name": "Sneha R",
+    "regNo": "730422205045",
+    "gender": "F"
+  },
+  {
+    "id": "46",
+    "rollNo": "22ITB46",
+    "name": "Sowmiya T",
+    "regNo": "730422205046",
+    "gender": "F"
+  },
+  {
+    "id": "47",
+    "rollNo": "22ITB47",
+    "name": "Sri Ram K",
+    "regNo": "730422205047",
+    "gender": "M"
+  },
+  {
+    "id": "48",
+    "rollNo": "22ITB48",
+    "name": "Subash Chandra Bose",
+    "regNo": "730422205048",
+    "gender": "M"
+  },
+  {
+    "id": "49",
+    "rollNo": "22ITB49",
+    "name": "Swetha B",
+    "regNo": "730422205049",
+    "gender": "F"
+  },
+  {
+    "id": "50",
+    "rollNo": "22ITB50",
+    "name": "Vigneshwaran M",
+    "regNo": "730422205050",
+    "gender": "M"
+  },
+  {
+    "id": "51",
+    "rollNo": "22ITB51",
+    "name": "Vijay Anand S",
+    "regNo": "730422205051",
+    "gender": "M"
+  },
+  {
+    "id": "52",
+    "rollNo": "22ITB52",
+    "name": "Vishnu Vardhan P",
+    "regNo": "730422205052",
+    "gender": "M"
+  },
+  {
+    "id": "53",
+    "rollNo": "22ITB53",
+    "name": "Yogalakshmi K",
+    "regNo": "730422205053",
+    "gender": "F"
+  },
+  {
+    "id": "54",
+    "rollNo": "22ITB54",
+    "name": "Yuvan Shankar G",
+    "regNo": "730422205054",
+    "gender": "M"
+  },
+  {
+    "id": "55",
+    "rollNo": "22ITB55",
+    "name": "Zahir Hussain M",
+    "regNo": "730422205055",
+    "gender": "M"
+  }
+]

@@ -1,0 +1,126 @@
+/* Custom styling for IT-B Attendance System */
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.6);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(71, 85, 105, 0.6);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(99, 102, 241, 0.8);
+}
+
+/* Period Pills */
+.period-pill {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  user-select: none;
+}
+
+.period-pill.active {
+  background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%) !important;
+  color: #ffffff !important;
+  border-color: #818cf8 !important;
+  box-shadow: 0 4px 14px -2px rgba(99, 102, 241, 0.45);
+  transform: translateY(-1px);
+}
+
+.period-pill.is-saved {
+  border-left: 3px solid #10b981;
+}
+
+/* Status selection buttons */
+.status-btn {
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
+.status-btn.selected-P {
+  background-color: #10b981 !important;
+  color: #ffffff !important;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.35);
+}
+
+.status-btn.selected-A {
+  background-color: #f43f5e !important;
+  color: #ffffff !important;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(244, 63, 94, 0.35);
+}
+
+.status-btn.selected-OD {
+  background-color: #0284c7 !important;
+  color: #ffffff !important;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.35);
+}
+
+.status-btn.selected-L {
+  background-color: #f59e0b !important;
+  color: #ffffff !important;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.35);
+}
+
+/* Row states */
+.student-row-P {
+  background-color: rgba(16, 185, 129, 0.04);
+}
+
+.student-row-A {
+  background-color: rgba(244, 63, 94, 0.12);
+  border-left: 4px solid #f43f5e !important;
+}
+
+.student-row-OD {
+  background-color: rgba(2, 132, 199, 0.08);
+  border-left: 4px solid #0284c7 !important;
+}
+
+.student-row-L {
+  background-color: rgba(245, 158, 11, 0.08);
+  border-left: 4px solid #f59e0b !important;
+}
+
+/* Tab buttons */
+.tab-btn.active {
+  background-color: #4f46e5;
+  color: #ffffff;
+  box-shadow: 0 2px 10px rgba(79, 70, 229, 0.3);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.tab-content:not(.hidden) {
+  animation: fadeIn 0.25s ease-out;
+}
+
+/* Toast */
+.toast {
+  animation: toastIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes toastIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
