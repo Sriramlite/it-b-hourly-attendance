@@ -1,14 +1,28 @@
+require('dotenv').config();
 const fs = require('fs');
 const path = require('path');
+const { createClient } = require('@supabase/supabase-js');
 
 const DATA_DIR = path.join(__dirname, 'data');
 const STUDENTS_FILE = path.join(DATA_DIR, 'students.json');
 const ATTENDANCE_FILE = path.join(DATA_DIR, 'attendance.json');
 const CONFIG_FILE = path.join(DATA_DIR, 'config.json');
 
-// Ensure data directory exists
-if (!fs.existsSync(DATA_DIR)) {
-  fs.mkdirSync(DATA_DIR, { recursive: true });
+// Initialize Supabase if credentials are provided
+const supabaseUrl = process.env.SUPABASE_URL || '';
+const supabaseKey = process.env.SUPABASE_ANON_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+const isSupabaseEnabled = Boolean(supabaseUrl && supabaseKey);
+
+let supabase = null;
+if (isSupabaseEnabled) {
+  try {
+    supabase = createClient(supabaseUrl, supabaseKey);
+    console.log('[Database] Supabase connected successfully!');
+  } catch (err) {
+    console.error('[Database] Supabase initialization error:', err.message);
+  }
+} else {
+  console.log('[Database] Running in Local JSON fallback mode (Set SUPABASE_URL to connect Supabase)');
 }
 
 // Default 8 periods timetable schedule
@@ -82,7 +96,7 @@ const DEFAULT_STUDENTS = [
   { id: '55', rollNo: '22ITB55', name: 'Zahir Hussain M', regNo: '730422205055', gender: 'M' }
 ];
 
-// Read JSON helper
+// Local JSON Helpers
 function readJson(filePath, defaultValue) {
   try {
     if (!fs.existsSync(filePath)) {
@@ -92,49 +106,46 @@ function readJson(filePath, defaultValue) {
     const data = fs.readFileSync(filePath, 'utf8');
     return JSON.parse(data);
   } catch (err) {
-    console.error(`Error reading ${filePath}:`, err);
     return defaultValue;
   }
 }
 
-// Write JSON helper (atomic write)
 function writeJson(filePath, data) {
-  const tmpPath = `${filePath}.tmp.${Date.now()}`;
-  fs.writeFileSync(tmpPath, JSON.stringify(data, null, 2), 'utf8');
-  fs.renameSync(tmpPath, filePath);
-}
-
-// Initialize files if not existing
-function initDb() {
-  if (!fs.existsSync(STUDENTS_FILE)) {
-    writeJson(STUDENTS_FILE, DEFAULT_STUDENTS);
-  }
-  if (!fs.existsSync(ATTENDANCE_FILE)) {
-    writeJson(ATTENDANCE_FILE, {});
-  }
-  if (!fs.existsSync(CONFIG_FILE)) {
-    writeJson(CONFIG_FILE, {
-      className: 'IT - B',
-      academicYear: '2024 - 2028',
-      semester: 'Semester 5',
-      tutorName: 'Class Advisor',
-      crName: 'Class Representative',
-      thresholdPercent: 75,
-      periods: DEFAULT_PERIODS
-    });
+  try {
+    if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
+    const tmpPath = `${filePath}.tmp.${Date.now()}`;
+    fs.writeFileSync(tmpPath, JSON.stringify(data, null, 2), 'utf8');
+    fs.renameSync(tmpPath, filePath);
+  } catch (err) {
+    console.error(`Write error to ${filePath}:`, err.message);
   }
 }
-
-initDb();
 
 const db = {
-  // Students
-  getStudents() {
+  isSupabase() {
+    return Boolean(supabase);
+  },
+
+  // ----------------------------------------------------
+  // STUDENTS
+  // ----------------------------------------------------
+  async getStudents() {
+    if (this.isSupabase()) {
+      const { data, error } = await supabase.from('students').select('*').order('roll_no');
+      if (!error && data && data.length > 0) {
+        return data.map(s => ({
+          id: s.id,
+          rollNo: s.roll_no,
+          name: s.name,
+          regNo: s.reg_no || '',
+          gender: s.gender || 'M'
+        }));
+      }
+    }
     return readJson(STUDENTS_FILE, DEFAULT_STUDENTS);
   },
 
-  addStudent(student) {
-    const students = this.getStudents();
+  async addStudent(student) {
     const newStudent = {
       id: String(Date.now()),
       rollNo: student.rollNo.trim().toUpperCase(),
@@ -142,15 +153,38 @@ const db = {
       regNo: (student.regNo || '').trim(),
       gender: student.gender || 'M'
     };
+
+    if (this.isSupabase()) {
+      const { error } = await supabase.from('students').insert({
+        id: newStudent.id,
+        roll_no: newStudent.rollNo,
+        name: newStudent.name,
+        reg_no: newStudent.regNo,
+        gender: newStudent.gender
+      });
+      if (error) console.error('Supabase addStudent error:', error.message);
+    }
+
+    // Also update local copy
+    const students = readJson(STUDENTS_FILE, DEFAULT_STUDENTS);
     students.push(newStudent);
-    // Sort by rollNo
     students.sort((a, b) => a.rollNo.localeCompare(b.rollNo));
     writeJson(STUDENTS_FILE, students);
     return newStudent;
   },
 
-  updateStudent(id, updateData) {
-    const students = this.getStudents();
+  async updateStudent(id, updateData) {
+    if (this.isSupabase()) {
+      const payload = {};
+      if (updateData.rollNo) payload.roll_no = updateData.rollNo.trim().toUpperCase();
+      if (updateData.name) payload.name = updateData.name.trim();
+      if (updateData.regNo !== undefined) payload.reg_no = updateData.regNo.trim();
+      if (updateData.gender) payload.gender = updateData.gender;
+
+      await supabase.from('students').update(payload).eq('id', id);
+    }
+
+    const students = readJson(STUDENTS_FILE, DEFAULT_STUDENTS);
     const idx = students.findIndex(s => s.id === id);
     if (idx === -1) return null;
     students[idx] = {
@@ -165,36 +199,65 @@ const db = {
     return students[idx];
   },
 
-  deleteStudent(id) {
-    const students = this.getStudents();
-    const filtered = students.filter(s => s.id !== id);
-    if (filtered.length !== students.length) {
-      writeJson(STUDENTS_FILE, filtered);
-      return true;
+  async deleteStudent(id) {
+    if (this.isSupabase()) {
+      await supabase.from('students').delete().eq('id', id);
     }
-    return false;
+    const students = readJson(STUDENTS_FILE, DEFAULT_STUDENTS);
+    const filtered = students.filter(s => s.id !== id);
+    writeJson(STUDENTS_FILE, filtered);
+    return true;
   },
 
-  resetStudents() {
+  async resetStudents() {
+    if (this.isSupabase()) {
+      await supabase.from('students').delete().neq('id', '0');
+      const inserts = DEFAULT_STUDENTS.map(s => ({
+        id: s.id,
+        roll_no: s.rollNo,
+        name: s.name,
+        reg_no: s.regNo,
+        gender: s.gender
+      }));
+      await supabase.from('students').insert(inserts);
+    }
     writeJson(STUDENTS_FILE, DEFAULT_STUDENTS);
     return DEFAULT_STUDENTS;
   },
 
-  importStudents(list) {
-    const students = list.map((s, idx) => ({
+  async importStudents(list) {
+    const formatted = list.map((s, idx) => ({
       id: String(Date.now() + idx),
       rollNo: (s.rollNo || `22ITB${String(idx + 1).padStart(2, '0')}`).trim().toUpperCase(),
       name: (s.name || `Student ${idx + 1}`).trim(),
       regNo: (s.regNo || '').trim(),
       gender: s.gender || 'M'
     }));
-    students.sort((a, b) => a.rollNo.localeCompare(b.rollNo));
-    writeJson(STUDENTS_FILE, students);
-    return students;
+
+    if (this.isSupabase()) {
+      const inserts = formatted.map(s => ({
+        id: s.id,
+        roll_no: s.rollNo,
+        name: s.name,
+        reg_no: s.regNo,
+        gender: s.gender
+      }));
+      await supabase.from('students').upsert(inserts, { onConflict: 'roll_no' });
+    }
+
+    formatted.sort((a, b) => a.rollNo.localeCompare(b.rollNo));
+    writeJson(STUDENTS_FILE, formatted);
+    return formatted;
   },
 
-  // Config & Periods
-  getConfig() {
+  // ----------------------------------------------------
+  // CONFIG
+  // ----------------------------------------------------
+  async getConfig() {
+    if (this.isSupabase()) {
+      const { data } = await supabase.from('class_config').select('data').eq('key', 'config').single();
+      if (data && data.data) return data.data;
+    }
     return readJson(CONFIG_FILE, {
       className: 'IT - B',
       academicYear: '2024 - 2028',
@@ -206,47 +269,96 @@ const db = {
     });
   },
 
-  updateConfig(newConfig) {
-    const current = this.getConfig();
+  async updateConfig(newConfig) {
+    const current = await this.getConfig();
     const updated = { ...current, ...newConfig };
+    if (this.isSupabase()) {
+      await supabase.from('class_config').upsert({ key: 'config', data: updated });
+    }
     writeJson(CONFIG_FILE, updated);
     return updated;
   },
 
-  // Attendance
-  // Key format: YYYY-MM-DD_P{period}
+  // ----------------------------------------------------
+  // ATTENDANCE
+  // ----------------------------------------------------
   makeKey(date, period) {
     return `${date}_P${period}`;
   },
 
-  getAttendance(date, period) {
-    const allAttendance = readJson(ATTENDANCE_FILE, {});
+  async getAttendance(date, period) {
     const key = this.makeKey(date, period);
+    if (this.isSupabase()) {
+      const { data, error } = await supabase.from('attendance').select('*').eq('id', key).single();
+      if (!error && data) {
+        return {
+          date: data.date,
+          period: data.period,
+          subject: data.subject,
+          notes: data.notes,
+          records: data.records,
+          updatedAt: data.updated_at
+        };
+      }
+    }
+    const allAttendance = readJson(ATTENDANCE_FILE, {});
     return allAttendance[key] || null;
   },
 
-  saveAttendance(date, period, subject, records, notes = '') {
-    const allAttendance = readJson(ATTENDANCE_FILE, {});
+  async saveAttendance(date, period, subject, records, notes = '') {
     const key = this.makeKey(date, period);
-
-    const recordEntry = {
+    const entry = {
       date,
       period: Number(period),
       subject: subject || '',
       notes: notes || '',
-      records, // { [studentId]: "P" | "A" | "OD" | "L" }
+      records,
       updatedAt: new Date().toISOString()
     };
 
-    allAttendance[key] = recordEntry;
+    if (this.isSupabase()) {
+      const { error } = await supabase.from('attendance').upsert({
+        id: key,
+        date,
+        period: Number(period),
+        subject: subject || '',
+        notes: notes || '',
+        records,
+        updated_at: new Date().toISOString()
+      });
+      if (error) console.error('Supabase saveAttendance error:', error.message);
+    }
+
+    const allAttendance = readJson(ATTENDANCE_FILE, {});
+    allAttendance[key] = entry;
     writeJson(ATTENDANCE_FILE, allAttendance);
-    return recordEntry;
+    return entry;
   },
 
-  // Get full day attendance for all 8 periods
-  getDayAttendance(date) {
-    const allAttendance = readJson(ATTENDANCE_FILE, {});
+  async getDayAttendance(date) {
     const result = {};
+    for (let p = 1; p <= 8; p++) {
+      result[p] = null;
+    }
+
+    if (this.isSupabase()) {
+      const { data } = await supabase.from('attendance').select('*').eq('date', date);
+      if (data) {
+        data.forEach(item => {
+          result[item.period] = {
+            date: item.date,
+            period: item.period,
+            subject: item.subject,
+            notes: item.notes,
+            records: item.records,
+            updatedAt: item.updated_at
+          };
+        });
+        return result;
+      }
+    }
+
+    const allAttendance = readJson(ATTENDANCE_FILE, {});
     for (let p = 1; p <= 8; p++) {
       const key = this.makeKey(date, p);
       result[p] = allAttendance[key] || null;
@@ -254,10 +366,12 @@ const db = {
     return result;
   },
 
-  // Delete attendance record for a specific date and period
-  deleteAttendance(date, period) {
-    const allAttendance = readJson(ATTENDANCE_FILE, {});
+  async deleteAttendance(date, period) {
     const key = this.makeKey(date, period);
+    if (this.isSupabase()) {
+      await supabase.from('attendance').delete().eq('id', key);
+    }
+    const allAttendance = readJson(ATTENDANCE_FILE, {});
     if (allAttendance[key]) {
       delete allAttendance[key];
       writeJson(ATTENDANCE_FILE, allAttendance);
@@ -266,25 +380,34 @@ const db = {
     return false;
   },
 
-  // Calculate Class Analytics & Defaulters
-  getAnalytics(startDate, endDate) {
-    const students = this.getStudents();
-    const allAttendance = readJson(ATTENDANCE_FILE, {});
-    const config = this.getConfig();
+  // ----------------------------------------------------
+  // ANALYTICS & REPORTS
+  // ----------------------------------------------------
+  async getAnalytics(startDate, endDate) {
+    const students = await this.getStudents();
+    const config = await this.getConfig();
     const threshold = config.thresholdPercent || 75;
 
-    // Filter attendance sessions within date range
-    const filteredSessions = Object.values(allAttendance).filter(session => {
-      if (!session || !session.date) return false;
-      if (startDate && session.date < startDate) return false;
-      if (endDate && session.date > endDate) return false;
-      return true;
-    });
+    let sessions = [];
+    if (this.isSupabase()) {
+      let query = supabase.from('attendance').select('*');
+      if (startDate) query = query.gte('date', startDate);
+      if (endDate) query = query.lte('date', endDate);
+      const { data } = await query;
+      sessions = data || [];
+    } else {
+      const allAttendance = readJson(ATTENDANCE_FILE, {});
+      sessions = Object.values(allAttendance).filter(s => {
+        if (!s || !s.date) return false;
+        if (startDate && s.date < startDate) return false;
+        if (endDate && s.date > endDate) return false;
+        return true;
+      });
+    }
 
-    const totalSessions = filteredSessions.length;
-
-    // Initialize stats per student
+    const totalSessions = sessions.length;
     const studentStats = {};
+
     students.forEach(s => {
       studentStats[s.id] = {
         student: s,
@@ -293,32 +416,31 @@ const db = {
         od: 0,
         late: 0,
         totalConducted: 0,
-        effectivePresent: 0, // Present + OD counts towards academic attendance
+        effectivePresent: 0,
         percentage: 100
       };
     });
 
-    filteredSessions.forEach(session => {
+    sessions.forEach(session => {
       const records = session.records || {};
       students.forEach(s => {
-        const status = records[s.id] || 'A'; // default to Absent if missing
+        const status = records[s.id] || 'A';
         studentStats[s.id].totalConducted += 1;
         if (status === 'P') {
           studentStats[s.id].present += 1;
           studentStats[s.id].effectivePresent += 1;
         } else if (status === 'OD') {
           studentStats[s.id].od += 1;
-          studentStats[s.id].effectivePresent += 1; // On-duty is considered present
+          studentStats[s.id].effectivePresent += 1;
         } else if (status === 'L') {
           studentStats[s.id].late += 1;
-          studentStats[s.id].effectivePresent += 1; // Late also gets attendance
+          studentStats[s.id].effectivePresent += 1;
         } else {
           studentStats[s.id].absent += 1;
         }
       });
     });
 
-    // Compute percentages
     const statsList = Object.values(studentStats).map(stat => {
       const pct = stat.totalConducted > 0 
         ? Math.round((stat.effectivePresent / stat.totalConducted) * 1000) / 10 
@@ -328,7 +450,6 @@ const db = {
       return stat;
     });
 
-    // Summary counts
     const defaulters = statsList.filter(s => s.isDefaulter);
     const avgAttendance = statsList.length > 0 
       ? Math.round((statsList.reduce((acc, cur) => acc + cur.percentage, 0) / statsList.length) * 10) / 10 
@@ -341,15 +462,14 @@ const db = {
       threshold,
       defaultersCount: defaulters.length,
       studentStats: statsList,
-      defaulters
+      defaulters,
+      storageType: this.isSupabase() ? 'Supabase PostgreSQL' : 'Local Storage'
     };
   },
 
-  // Export Daily Attendance to CSV format
-  generateDailyCSV(date) {
-    const students = this.getStudents();
-    const dayAttendance = this.getDayAttendance(date);
-    const config = this.getConfig();
+  async generateDailyCSV(date) {
+    const students = await this.getStudents();
+    const dayAttendance = await this.getDayAttendance(date);
 
     const headers = [
       'Roll No',
